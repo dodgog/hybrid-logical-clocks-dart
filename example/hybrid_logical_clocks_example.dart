@@ -11,9 +11,8 @@ void main() {
 
   // Receive a mock packed representation of a timestamp from another client
   // 2025-02-20T00:57:09.251113Z-ff01-node123
-  print(HLC().receivePackedAndRepack("${DateTime.now().toUtc().add(Duration
-    (minutes: 11, seconds: 11))
-      .toIso8601String()}-FF00-node999"));
+  print(HLC().receivePackedAndRepack(
+      "${DateTime.now().toUtc().add(Duration(minutes: 11, seconds: 11)).toIso8601String()}-FF00-node999"));
 
   // Get a send timestamp, then pack:
   final localSendStamp = HLC().send();

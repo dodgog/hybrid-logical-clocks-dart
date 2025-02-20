@@ -1,6 +1,6 @@
 typedef LogicalTime = DateTime;
 
-class Timestamp implements Comparable<Timestamp>{
+class Timestamp implements Comparable<Timestamp> {
   const Timestamp(this.logicalTime, this.clientNode, this.counter);
 
   final LogicalTime logicalTime;
@@ -34,7 +34,7 @@ class ClientNode implements Comparable<ClientNode> {
 
   final String clientNodeId;
 
-  String pack(){
+  String pack() {
     return clientNodeId;
   }
 

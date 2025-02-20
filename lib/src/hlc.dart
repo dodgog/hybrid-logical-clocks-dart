@@ -104,9 +104,8 @@ class HLC {
     Timestamp? previousTimestamp,
   })  : _getPhysicalTime = timeFunction ?? (() => DateTime.now().toUtc()),
         config = customConfig ?? HLCConfig() {
-
     if (previousTimestamp != null) {
-      if (previousTimestamp.clientNode != clientNode){
+      if (previousTimestamp.clientNode != clientNode) {
         throw ClientException("Previous issuing client differs from current");
       }
     }
@@ -162,11 +161,10 @@ class HLC {
     }
 
     _instance = HLC._(
-      clientNode: clientNode,
-      timeFunction: timeFunction,
-      customConfig: customConfig,
-      previousTimestamp: previousTimestamp
-    );
+        clientNode: clientNode,
+        timeFunction: timeFunction,
+        customConfig: customConfig,
+        previousTimestamp: previousTimestamp);
   }
 
   /// Resets the HLC singleton instance
