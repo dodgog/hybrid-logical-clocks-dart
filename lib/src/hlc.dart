@@ -1,6 +1,5 @@
 import 'package:hybrid_logical_clocks/src/timestamp.dart';
 import 'dart:math';
-import 'package:meta/meta.dart';
 
 /// Configuration for Hybrid Logical Clock
 ///
@@ -168,6 +167,14 @@ class HLC {
       customConfig: customConfig,
       previousTimestamp: previousTimestamp
     );
+  }
+
+  /// Resets the HLC singleton instance
+  ///
+  /// WARNING:
+  /// No reason to use in real life systems, but good for testing
+  static void reset() {
+    _instance = null;
   }
 
   /// Issues a timestamp for a local event
@@ -340,11 +347,6 @@ class HLC {
       }
     }
     return _timestamp = newTimestamp;
-  }
-
-  @visibleForTesting
-  static void reset() {
-    _instance = null;
   }
 }
 

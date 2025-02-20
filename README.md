@@ -1,39 +1,47 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Hybrid Logical Clocks
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages). 
+A zero-dependency implementation of Hybrid Logical Clocks (HLC) based on the [original paper](https://cse.buffalo.edu/tech-reports/2014-04.pdf) by Sandeep Kulkarni et al.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+HLC provides a mechanism for generating timestamps that respect both the happens-before relationship and are closely tied to physical time, making them ideal for distributed systems.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- 🚫 Zero external dependencies
+- ✅ Tested
+- 🔧 Highly customizable configuration
+- 📦 Simple, singleton-based API
+- 📝 Documented
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+```bash
+dart pub add hybrid_logical_clocks
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
 ```dart
-const like = 'sample';
+// Initialize HLC with a unique node identifier
+HLC.initialize(clientNode: ClientNode("node123"));
+
+// Generate timestamps for local events
+final localEventStamp = HLC().issueLocalEventPacked();
+// Output: "2024-03-20T10:45:58.249Z-0000-node123"
+
+// Process timestamps from other nodes
+final receivedStamp = HLC().receivePackedAndRepack(
+  "2024-03-20T10:45:59.251Z-0000-node999"
+);
+
+// Timestamps are comparable
+assert(localEventStamp.compareTo(receivedStamp) < 0);
 ```
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+The HLC implementation is highly customizable. You can configure:
+- Maximum allowed clock drift
+- Counter representation format
+- Timestamp string format
+- Physical time source
+- Custom timestamp packing/unpacking logic
