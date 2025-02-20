@@ -2,7 +2,7 @@ name: hybrid_logical_clocks
 description: An implementation of HLC from the original paper without 
   dependencies
 version: 1.0.0
-repository: https://github.com/dodgog/hybrid_logical_clocks
+repository: https://github.com/dodgog/hybrid-logical-clocks-dart
 
 environment:
   sdk: ^3.6.0
