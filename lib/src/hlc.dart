@@ -1,5 +1,6 @@
 import 'package:hybrid_logical_clocks/src/timestamp.dart';
 import 'dart:math';
+import 'package:meta/meta.dart';
 
 /// Configuration for Hybrid Logical Clock
 ///
@@ -64,6 +65,11 @@ class CounterOverflowException implements Exception {
   CounterOverflowException(this.message);
 }
 
+class ClientException implements Exception {
+  String message;
+  ClientException(this.message);
+}
+
 class TimestampFormatException implements Exception {
   String message;
   TimestampFormatException(this.message);
@@ -96,13 +102,22 @@ class HLC {
     required this.clientNode,
     LogicalTime Function()? timeFunction,
     HLCConfig? customConfig,
+    Timestamp? previousTimestamp,
   })  : _getPhysicalTime = timeFunction ?? (() => DateTime.now().toUtc()),
-        _timestamp = Timestamp(
+        config = customConfig ?? HLCConfig() {
+
+    if (previousTimestamp != null) {
+      if (previousTimestamp?.clientNode != clientNode){
+        throw ClientException("Previous issuing client differs from current");
+      }
+    }
+    _setTimestamp(previousTimestamp ??
+        Timestamp(
           DateTime.fromMillisecondsSinceEpoch(0),
           clientNode,
           0,
-        ),
-        config = customConfig ?? HLCConfig();
+        ));
+  }
 
   static HLC? _instance;
 
@@ -127,17 +142,31 @@ class HLC {
   /// HLC.initialize(clientNode: ClientNode("node123"));
   /// ```
   ///
-  /// Throws [StateError] if HLC is already initialized
+  /// Optional [previousTimestamp] allows resuming from a previously
+  /// issued timestamp.
+  /// The [previousTimestamp] must be from the same client node and must follow
+  /// the configured format.
+  ///
+  /// Throws:
+  /// - [StateError] if HLC is already initialized
+  /// - [ArgumentError] if previousTimestamp is from a different client node
+  /// - [CounterOverflowException] if previousTimestamp counter exceeds maxCount
+  /// - [ClockDriftException] if previousTimestamp exceeds max clock drift
   static void initialize({
     required ClientNode clientNode,
     DateTime Function()? timeFunction,
+    HLCConfig? customConfig,
+    Timestamp? previousTimestamp,
   }) {
     if (_instance != null) {
       throw StateError('HLC already initialized.');
     }
+
     _instance = HLC._(
       clientNode: clientNode,
       timeFunction: timeFunction,
+      customConfig: customConfig,
+      previousTimestamp: previousTimestamp
     );
   }
 
@@ -231,7 +260,7 @@ class HLC {
       counter: newCounter,
     );
 
-    return _setTimestamp(newTimestamp, now);
+    return _setTimestamp(newTimestamp, physicalDriftReferenceTime: now);
   }
 
   /// Converts a timestamp to its string representation
@@ -288,29 +317,34 @@ class HLC {
 
     if (_timestamp.logicalTime.compareTo(now) > 0) {
       newTimestamp = _timestamp.copyWith(counter: _timestamp.counter + 1);
-      return _setTimestamp(newTimestamp, now);
+      return _setTimestamp(newTimestamp, physicalDriftReferenceTime: now);
     }
     newTimestamp = _timestamp.copyWith(logicalTime: now, counter: 0);
-    return _setTimestamp(newTimestamp, now);
+    return _setTimestamp(newTimestamp, physicalDriftReferenceTime: now);
   }
 
-  Timestamp _setTimestamp(
-      Timestamp newTimestamp, LogicalTime physicalDriftReferenceTime) {
+  Timestamp _setTimestamp(Timestamp newTimestamp,
+      {LogicalTime? physicalDriftReferenceTime}) {
     if (newTimestamp.counter > config.maxCount) {
       throw CounterOverflowException(
           "Counter exceeded the limit of ${config.maxCount}");
     }
-    if (newTimestamp.logicalTime
-            .difference(physicalDriftReferenceTime)
-            .inMilliseconds
-            .abs() >
-        config.maxClockDriftMilliseconds) {
-      print("drift ${newTimestamp.logicalTime} and "
-          "$physicalDriftReferenceTime ");
-      throw ClockDriftException("Logical time drifted from physical time by "
-          "more than ${config.maxClockDriftMilliseconds} ms");
+    if (physicalDriftReferenceTime != null) {
+      if (newTimestamp.logicalTime
+              .difference(physicalDriftReferenceTime)
+              .inMilliseconds
+              .abs() >
+          config.maxClockDriftMilliseconds) {
+        throw ClockDriftException("Logical time drifted from physical time by "
+            "more than ${config.maxClockDriftMilliseconds} ms");
+      }
     }
     return _timestamp = newTimestamp;
+  }
+
+  @visibleForTesting
+  static void reset() {
+    _instance = null;
   }
 }
 

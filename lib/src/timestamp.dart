@@ -42,4 +42,15 @@ class ClientNode implements Comparable<ClientNode> {
 
   @override
   int compareTo(ClientNode other) => clientNodeId.compareTo(other.clientNodeId);
+
+  @override
+  bool operator ==(Object other) {
+    if (Object !is ClientNode){
+      return false  ;
+    }
+    return clientNodeId == (other as ClientNode).clientNodeId;
+  }
+
+  @override
+  int get hashCode => clientNodeId.hashCode;
 }
