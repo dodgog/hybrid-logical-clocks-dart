@@ -48,7 +48,7 @@ class ClientNode implements Comparable<ClientNode> {
     if (other is! ClientNode) {
       return false;
     }
-    return clientNodeId == (other as ClientNode).clientNodeId;
+    return clientNodeId == other.clientNodeId;
   }
 
   @override
