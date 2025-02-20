@@ -45,8 +45,8 @@ class ClientNode implements Comparable<ClientNode> {
 
   @override
   bool operator ==(Object other) {
-    if (Object !is ClientNode){
-      return false  ;
+    if (other is! ClientNode) {
+      return false;
     }
     return clientNodeId == (other as ClientNode).clientNodeId;
   }
