@@ -106,7 +106,7 @@ class HLC {
         config = customConfig ?? HLCConfig() {
 
     if (previousTimestamp != null) {
-      if (previousTimestamp?.clientNode != clientNode){
+      if (previousTimestamp.clientNode != clientNode){
         throw ClientException("Previous issuing client differs from current");
       }
     }
