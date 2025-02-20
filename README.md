@@ -45,3 +45,10 @@ The HLC implementation is highly customizable. You can configure:
 - Timestamp string format
 - Physical time source
 - Custom timestamp packing/unpacking logic
+
+## Further reading
+
+Besides the original paper, you might find these resources helpful to learn 
+about hybrid logical clocks:
+- https://jaredforsyth.com/posts/hybrid-logical-clocks/
+- https://youtu.be/DEcwa68f-jY?feature=shared
